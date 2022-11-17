@@ -15,9 +15,22 @@ public class ShowRecipeController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //Пользователь обратился к адресу /create-recipe, перенаправляем его на страницу create_recipe.jsp
         //Без смены url
-        List<Recipe> recipeList = RecipeDAO.getInstance().allRecipes();
-        request.setAttribute("recipes", recipeList);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("all_recipes.jsp");
-        dispatcher.forward(request, response);
+        String user = request.getParameter("userPref");
+        String recipe = request.getParameter("recipePref");
+
+        if((!user.equals("null"))&&(!recipe.equals("null"))){
+            System.out.println("doGet:" +user +" "+recipe);
+            List<Recipe> recipeList = RecipeDAO.getInstance().getRecipes(user,recipe);
+            request.setAttribute("recipes", recipeList);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("all_recipes.jsp");
+            dispatcher.forward(request, response);
+        }
+
+        else{
+            List<Recipe> recipeList = RecipeDAO.getInstance().allRecipes();
+            request.setAttribute("recipes", recipeList);
+            RequestDispatcher dispatcher = request.getRequestDispatcher("all_recipes.jsp");
+            dispatcher.forward(request, response);
+        }
     }
 }

@@ -5,7 +5,7 @@ import java.util.*;
 
 public class RecipeDAO {
     private static final RecipeDAO instance = new RecipeDAO();
-    private static String url = "jdbc:sqlite:D:\\java projects\\demo\\database.db";
+    private static String url = "jdbc:sqlite:D:\\Java_Learn\\Lessons\\Lesson_131122_Receipts\\demo\\database.db";
 
     private RecipeDAO() {
         try {
@@ -41,6 +41,34 @@ public class RecipeDAO {
         }
         return list;
     }
+
+
+    public List<Recipe> getRecipes(String userPref,String recipePref) {
+        List<Recipe> list = new ArrayList<>();
+        String usPr="\""+userPref+"%"+"\"";
+        String recPr="\""+recipePref+"%"+"\"";
+
+
+        try(Connection connection = DriverManager.getConnection(url)) {
+        String query="SELECT Recipe.title, recipe.description, recipe.author_id  from recipe  join user on user.id=recipe.author_id"+" where ((recipe.title like "+recPr+")"+ "and (user.email like "+ usPr+"))";
+            Statement statement = connection.createStatement();
+            ResultSet set = statement.executeQuery(query);
+
+            while(set.next()) {
+                String title = set.getString("title");
+                String description = set.getString("description");
+                int author_id = set.getInt("author_id");
+
+                User author = UserDAO.getInstance().getUserById(author_id);
+                list.add(new Recipe(title, description, author));
+            }
+        }
+        catch(SQLException ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
 
     public void insert(Recipe recipe) {
         try(Connection connection = DriverManager.getConnection(url)) {
